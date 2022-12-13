@@ -2,7 +2,7 @@ package pairmatching.utils
 
 import java.io.File
 
-class Crew {
+open class Crew {
 
     companion object {
         fun makeCrewList(course: String): List<String> {
