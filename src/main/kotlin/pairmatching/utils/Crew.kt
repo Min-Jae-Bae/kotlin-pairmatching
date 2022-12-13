@@ -1,23 +1,18 @@
 package pairmatching.utils
 
-import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
 
 open class Crew {
 
     companion object {
-        fun makeCrewList(course: String): List<String> {
-            val crewNameArray = arrayListOf<String>()
-            var crewName: String?
-
-            val crewFile = File(getPath(course))
-
-            crewFile.bufferedReader().use {
-                while (true) {
-                    crewName = it.readLine()
-                    crewName?.let { name -> crewNameArray.add(name) } ?: break
-                }
-            }
-            return crewNameArray
+        fun makeCrew(course: String): List<String> {
+            val filePath = Paths.get(getPath(course))
+            return Files.readAllLines(filePath, Charsets.UTF_8)
+                .toString()
+                .removePrefix("[")
+                .removeSuffix("]")
+                .split(" ")
         }
 
 
