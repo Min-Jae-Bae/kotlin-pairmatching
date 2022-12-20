@@ -6,5 +6,9 @@ import pairmatching.view.OutputView
 
 fun main() {
     val pairMatching = PairMatching(InputView(), OutputView())
-    pairMatching.process()
+    try {
+        pairMatching.process()
+    } catch (error: NullPointerException) {
+        println("[ERROR]")
+    }
 }
