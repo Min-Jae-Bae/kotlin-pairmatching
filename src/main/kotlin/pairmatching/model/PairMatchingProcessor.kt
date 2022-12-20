@@ -9,32 +9,32 @@ import pairmatching.utils.Crew.Companion.makeCrew
 
 object PairMatchingProcessor {
 
-    private val matchedByLevel: HashMap<Course, HashMap<Level, HashMap<String, List<String>>>> = HashMap()
+    private val matchedByLevel: HashMap<Course, HashMap<Level, HashMap<String, List<String>>>> =
+        HashMap()
     private val matchedByMission: HashMap<Course, HashMap<String, List<List<String>>>> = HashMap()
 
     // 매치 크루를 불러옴 (코스, 미션 값의 value 없으면 빈 리스트 반환)
-    fun getMatchedCrews(course: Course, mission: String) {
-        matchedByMission[course]?.get(mission) ?: emptyList()
+    fun getMatchedCrews(course: Course, mission: String): List<List<String>> {
+        return matchedByMission[course]?.get(mission) ?: emptyList()
     }
 
-    fun matchCrews(course: String, level: String, mission: String): List<String> {
-        val shuffleCrews = getShuffledCrew(Course.convertCourse(course))
+    fun matchCrews(course: String, level: String, mission: String): List<List<String>> {
+        val shuffleCrews = getShuffledCrew(convertCourse(course))
         val matchedCrews = match(shuffleCrews)
 
-        /*
-        * TODO: 같은 레벨에서 이미 페어로 만난적이 있는 크루가 있는지 확인하는 기능
-        * TODO: 3회 시도까지 매칭 x or 매칭 경우의 수 없는지 확인하는 기능
-        *  */
-
+        repeat(3) {
+            if (checkDuplication(matchedCrews, convertCourse(course), convertLevel(level))) {
+                return@repeat
+            }
         addCrewByLevel(convertCourse(course), convertLevel(level), matchedCrews)
         addCrewByMission(course, mission, matchedCrews)
-
-        return emptyList()
+        return matchedCrews
+        }
+        throw IllegalArgumentException("3회 이상 매칭 불가능합니다.")
     }
 
 
     private fun match(crews: List<String>): List<List<String>> {
-        //TODO: 최소 매칭 숫자
         val mutableCrews = crews.toMutableList()
         val matchedCrew: MutableList<List<String>> = mutableListOf()
 
@@ -63,7 +63,7 @@ object PairMatchingProcessor {
 
     // 코스에 따른 미션으로 크루들을 넣는 기능
     private fun addCrewByMission(course: String, mission: String, matchedCrew: List<List<String>>) {
-        matchedByMission.getOrPut(Course.convertCourse(course)) { hashMapOf(mission to matchedCrew) }
+        matchedByMission.getOrPut(convertCourse(course)) { hashMapOf(mission to matchedCrew) }
 
     }
 
@@ -75,6 +75,21 @@ object PairMatchingProcessor {
         return true
     }
 
+    // 중복 매칭 확인 (union)
+    private fun checkDuplication(matchedCrew: List<List<String>>, course: Course, level: Level): Boolean {
+        // 존재하지 않으면 false 반환
+        val matchedByLevel = matchedByLevel[course]?.get(level) ?: return false
+        matchedCrew.forEach { pair ->
+            pair.forEach { crew ->
+                val expectedSize = pair.size + (matchedByLevel[crew]?.size ?: 0)
+                val unionSize = pair.union(matchedByLevel[crew] ?: emptyList()).size
+                if (expectedSize != unionSize) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 
     fun clearPairMatching() {
         matchedByLevel.clear()
