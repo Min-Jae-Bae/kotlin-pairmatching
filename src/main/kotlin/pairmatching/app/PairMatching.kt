@@ -1,7 +1,11 @@
 package pairmatching.app
 
-import pairmatching.domain.Course
-import pairmatching.model.PairMatchingProcessor
+import pairmatching.domain.Course.Companion.convertCourse
+import pairmatching.model.PairMatchingProcessor.checkMatched
+import pairmatching.model.PairMatchingProcessor.clearPairMatching
+import pairmatching.model.PairMatchingProcessor.getMatchedCrews
+import pairmatching.model.PairMatchingProcessor.matchCrews
+import pairmatching.utils.*
 import pairmatching.view.InputView
 import pairmatching.view.OutputView
 
@@ -21,35 +25,33 @@ class PairMatching(
 
     private fun choiceOption(option: String) {
         when (option) {
-            "1" -> matchPair()
-            "2" -> lookUpPair()
-            "3" -> resetPair()
-            "Q" -> isProcessing = false
+            PAIR_MATCHING_COMMAND -> matchPair()
+            LOOKING_UP_COMMAND -> lookUpPair()
+            PAIR_RESETTING_COMMAND -> resetPair()
+            QUIT_COMMAND -> isProcessing = false
         }
     }
 
 
     private fun matchPair() {
         val (course, level, mission) = inputView.chooseCourse()
-        if (PairMatchingProcessor.checkMatched(Course.convertCourse(course), mission)) {
+        if (checkMatched(convertCourse(course), mission)) {
             when (inputView.chooseRematch()) {
-                "네" -> outputView.matchingResult(PairMatchingProcessor.matchCrews(course, level, mission))
-                "아니오" -> return
+                REMATCHING_COMMAND -> outputView.matchingResult(matchCrews(course, level, mission))
+                NOT_REMATCHING_COMMAND -> return
             }
             return
         }
-        outputView.matchingResult(PairMatchingProcessor.matchCrews(course, level, mission))
+        outputView.matchingResult(matchCrews(course, level, mission))
     }
 
     private fun lookUpPair() {
-        /*페어 매칭 정보 출력*/
         val (course, _, mission) = inputView.chooseCourse()
-        outputView.matchingResult(PairMatchingProcessor.getMatchedCrews(Course.convertCourse(course),
-            mission))
+        outputView.matchingResult(getMatchedCrews(convertCourse(course), mission))
     }
 
     private fun resetPair() {
-        PairMatchingProcessor.clearPairMatching()
+        clearPairMatching()
         outputView.printInitializedMessage()
     }
 }

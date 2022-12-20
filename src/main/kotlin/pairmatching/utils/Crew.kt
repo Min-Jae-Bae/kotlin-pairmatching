@@ -3,7 +3,7 @@ package pairmatching.utils
 import java.nio.file.Files
 import java.nio.file.Paths
 
-open class Crew {
+class Crew {
 
     companion object {
         fun makeCrew(course: String): List<String> {
