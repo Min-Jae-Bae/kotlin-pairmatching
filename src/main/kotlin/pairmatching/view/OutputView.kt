@@ -17,7 +17,10 @@ class OutputView {
         }
     }
 
+    fun printInitializedMessage() = println(PAIR_INITIALIZED_MESSAGE)
+
     companion object {
         const val ERROR_NO_MATCHING_HISTORY = "[ERROR] 매칭 이력이 없습니다."
+        const val PAIR_INITIALIZED_MESSAGE = "초기화 되었습니다."
     }
 }
