@@ -22,15 +22,15 @@ object PairMatchingProcessor {
         val shuffleCrews = getShuffledCrew(convertCourse(course))
         val matchedCrews = match(shuffleCrews)
 
-        repeat(3) {
+        repeat(3) { trial ->
+            require(trial < 3) { "3회 이상 매칭 불가능합니다." }
             if (checkDuplication(matchedCrews, convertCourse(course), convertLevel(level))) {
                 return@repeat
             }
-        addCrewByLevel(convertCourse(course), convertLevel(level), matchedCrews)
-        addCrewByMission(course, mission, matchedCrews)
-        return matchedCrews
+            addCrewByLevel(convertCourse(course), convertLevel(level), matchedCrews)
+            addCrewByMission(course, mission, matchedCrews)
         }
-        throw IllegalArgumentException("3회 이상 매칭 불가능합니다.")
+        return matchedCrews
     }
 
 
@@ -76,7 +76,11 @@ object PairMatchingProcessor {
     }
 
     // 중복 매칭 확인 (union)
-    private fun checkDuplication(matchedCrew: List<List<String>>, course: Course, level: Level): Boolean {
+    private fun checkDuplication(
+        matchedCrew: List<List<String>>,
+        course: Course,
+        level: Level,
+    ): Boolean {
         // 존재하지 않으면 false 반환
         val matchedByLevel = matchedByLevel[course]?.get(level) ?: return false
         matchedCrew.forEach { pair ->
